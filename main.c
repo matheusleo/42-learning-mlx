@@ -6,7 +6,7 @@
 /*   By: mleonard <mleonard@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 20:58:30 by mleonard          #+#    #+#             */
-/*   Updated: 2022/09/12 23:27:20 by mleonard         ###   ########.fr       */
+/*   Updated: 2022/09/24 14:08:56 by mleonard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,28 +33,27 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
-void	create_square(t_data *img, int size_goal, int color)
+void	create_square(t_data *img, int size_goal, int color, int offset_x, int offset_y)
 {
-	static int	offset = 5;
 	int			cur_len;
 	int			cur_color;
 
 	// write upper side
 	cur_len = -1;
 	while (++cur_len < size_goal)
-		my_mlx_pixel_put(img, offset + cur_len, offset, color);
+		my_mlx_pixel_put(img, offset_x + cur_len, offset_y, color);
 	// write left side
 	cur_len = -1;
 	while (++cur_len < size_goal)
-		my_mlx_pixel_put(img, offset, offset + cur_len, color);
+		my_mlx_pixel_put(img, offset_x, offset_y + cur_len, color);
 	// write down side
 	cur_len = -1;
 	while (++cur_len < size_goal)
-		my_mlx_pixel_put(img, offset + cur_len, offset + size_goal, color);
+		my_mlx_pixel_put(img, offset_x + cur_len, offset_y + size_goal, color);
 	// write right side
 	cur_len = -1;
 	while (++cur_len < size_goal)
-		my_mlx_pixel_put(img, offset + size_goal, offset + cur_len, color);
+		my_mlx_pixel_put(img, offset_x + size_goal, offset_y + cur_len, color);
 
 }
 
@@ -115,7 +114,15 @@ int	main(void)
 	img.img = mlx_new_image(mlx, 960, 540);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, \
 					&img.line_length, &img.endian);
-	create_square(&img, 500, WHITE);
+	// RED
+	create_square(&img, 50, 16711680, 50, 0 + 25);
+	create_square(&img, 50, 65535, 100 + 25, 0 + 25);
+	// GREEN
+	create_square(&img, 50, 65280, 50, 75 + 25);
+	create_square(&img, 50, 16711935, 100 + 25, 75 + 25);
+	// BLUE
+	create_square(&img, 50, 255, 50, 150 + 25);
+	create_square(&img, 50, 16776960, 100 + 25, 150 + 25);
 	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
 	mlx_loop(mlx);
 }
