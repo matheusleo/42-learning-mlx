@@ -6,13 +6,14 @@
 /*   By: mleonard <mleonard@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 20:58:30 by mleonard          #+#    #+#             */
-/*   Updated: 2022/09/26 09:30:34 by mleonard         ###   ########.fr       */
+/*   Updated: 2022/09/26 19:18:36 by mleonard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <mlx.h>
 #include <stdio.h>
 #include "colors.h"
+#include "keys.h"
 
 typedef struct s_data
 {
@@ -28,6 +29,20 @@ typedef struct s_vars
 	void	*mlx;
 	void	*win;
 }			t_vars;
+
+typedef struct s_square
+{
+	int	x_pos;
+	int	y_pos;
+}			t_square;
+
+
+typedef struct s_docs
+{
+	t_data		*data;
+	t_vars		*vars;
+	t_square	*square;
+}			t_docs;
 
 
 // GETTING STARTED
@@ -87,10 +102,6 @@ void	create_circle_version_1(t_data *img, int radius, int color)
 		my_mlx_pixel_put(img, offset + cur_x, offset + cur_y, WHITE);
 }
 
-/*
-	(x-xo)² + (y-yo)² = r²
-	(cur_x - offset)² + (cur_y - offset)² = r²
- */
 void	create_circle_version_2(t_data *img, int radius, int color)
 {
 	int	offset;
@@ -170,41 +181,60 @@ int	mouse_move_hook(int x, int y, t_vars *vars)
 	printf("pos_y %d\n", y);
 }
 
+// LOOPS
+int move_square(int keycode, t_docs *docs)
+{
+	t_square	*square;
+	t_vars		*vars;
+	t_data		*data;
+
+	printf("move_square\nkeycode %d\n", keycode);
+	square = docs->square;
+	vars = docs->vars;
+	data = docs->data;
+	if (keycode == W_CODE && square->y_pos > 0)
+		square->y_pos--;
+	if (keycode == S_CODE && square->y_pos < 640)
+		square->y_pos++;
+	if (keycode == A_CODE && square->x_pos > 0)
+		square->x_pos--;
+	if (keycode == D_CODE && square->x_pos < 960)
+		square->x_pos++;
+	create_square(&(data->img), 50, 16711680, square->x_pos, square->y_pos);
+}
+
+int	render_next_frame(t_docs *docs)
+{
+	t_data		*data;
+	t_vars		*vars;
+	t_square	*square;
+
+	data = docs->data;
+	vars = docs->vars;
+	square = docs->square;
+	mlx_put_image_to_window(vars->mlx, vars->win, data->img, 0, 0);
+}
+
 int	main(void)
 {
-	t_vars	vars;
-	t_data	img;
+	t_vars		vars;
+	t_data		img;
+	t_square	square;
+	t_docs		docs;
 
 	vars.mlx = mlx_init();
 	vars.win = mlx_new_window(vars.mlx, 960, 640, "Hello world!");
-	img.img = mlx_new_image(vars.mlx, 960, 540);
+	img.img = mlx_new_image(vars.mlx, 960, 640);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, \
 					&img.line_length, &img.endian);
-	// RED
-	create_square(&img, 50, 16711680, 50, 0 + 25);
-	create_square(&img, 50, 65535, 100 + 25, 0 + 25);
-	// GREEN
-	create_square(&img, 50, 65280, 50, 75 + 25);
-	create_square(&img, 50, 16711935, 100 + 25, 75 + 25);
-	// BLUE
-	create_square(&img, 50, 255, 50, 150 + 25);
-	create_square(&img, 50, 16776960, 100 + 25, 150 + 25);
+	square.x_pos = 50;
+	square.y_pos = 25;
+	docs.data = &img;
+	docs.vars = &vars;
+	docs.square = &square;
+	create_square(&img, 50, 16711680, square.x_pos, square.y_pos);
 	mlx_put_image_to_window(vars.mlx, vars.win, img.img, 0, 0);
-	// mlx_hooks
-	/*
-		// log "Hello!" on when mouse enters the screen
-		mlx_hook(vars.win, 7, 1L<<4, mouse_entered, &vars);
-		// log "Bye!" on when mouse leaves the screen
-		mlx_hook(vars.win, 8, 1L<<5, mouse_left, &vars);
-		// log "Moving!" when the mouse is moving
-		mlx_hook(vars.win, 6, 1L<<6, mouse_moved, &vars);
-		// stop program on "X" click
-		mlx_hook(vars.win, 17, 1L<<0, cross_click, &vars);
-		// listen to keypress events
-		mlx_hook(vars.win, 2, 1L<<1, key_press, &vars);
-	*/
-	mlx_key_hook(vars.win, key_hook, &vars);
-	mlx_mouse_hook(vars.win, mouse_hook, &vars);
-	mlx_hook(vars.win, 6, 1L<<6, mouse_move_hook, &vars);
+	mlx_key_hook(vars.win, move_square, &docs);
+	mlx_loop_hook(vars.mlx, render_next_frame, &docs);
 	mlx_loop(vars.mlx);
 }
