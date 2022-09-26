@@ -6,7 +6,7 @@
 /*   By: mleonard <mleonard@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 20:58:30 by mleonard          #+#    #+#             */
-/*   Updated: 2022/09/26 19:18:36 by mleonard         ###   ########.fr       */
+/*   Updated: 2022/09/26 20:50:44 by mleonard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,33 +187,57 @@ int move_square(int keycode, t_docs *docs)
 	t_square	*square;
 	t_vars		*vars;
 	t_data		*data;
+	int			color;
+	static int	counter_squares = 0;
 
 	printf("move_square\nkeycode %d\n", keycode);
 	square = docs->square;
 	vars = docs->vars;
 	data = docs->data;
 	if (keycode == W_CODE && square->y_pos > 0)
-		square->y_pos--;
+		square->y_pos-= 15;
 	if (keycode == S_CODE && square->y_pos < 640)
-		square->y_pos++;
-	if (keycode == A_CODE && square->x_pos > 0)
-		square->x_pos--;
-	if (keycode == D_CODE && square->x_pos < 960)
-		square->x_pos++;
-	create_square(&(data->img), 50, 16711680, square->x_pos, square->y_pos);
+		square->y_pos+= 15;
+	if (keycode == A_CODE)
+		square->x_pos-= 15;
+	if (keycode == D_CODE)
+		square->x_pos+= 15;
+	if (square->x_pos % 2 == 0 || square->y_pos % 2 == 0)
+		mlx_mouse_hide(vars->mlx, vars->win);
+	else
+		mlx_mouse_show(vars->mlx, vars->win);
+	if (counter_squares % 2 == 0)
+		color = RED;
+	else if (counter_squares % 3 == 0)
+		color = GREEN;
+	else
+		color = BLUE;
+	counter_squares++;
+	create_square(&(data->img), 50, color, square->x_pos, square->y_pos);
+}
+
+// EXTRA
+int greet_the_user(t_vars *vars)
+{
+	char	*greeting;
+
+	greeting = "Hello there!";
+	mlx_set_font(vars->mlx, vars->win, "rk14");
+	mlx_string_put(vars->mlx, vars->win, 25, 25, BLUE, greeting);
 }
 
 int	render_next_frame(t_docs *docs)
 {
 	t_data		*data;
 	t_vars		*vars;
-	t_square	*square;
 
 	data = docs->data;
 	vars = docs->vars;
-	square = docs->square;
 	mlx_put_image_to_window(vars->mlx, vars->win, data->img, 0, 0);
+	greet_the_user(vars);
+	mlx_do_key_autorepeaton(vars->mlx);
 }
+
 
 int	main(void)
 {
@@ -232,8 +256,7 @@ int	main(void)
 	docs.data = &img;
 	docs.vars = &vars;
 	docs.square = &square;
-	create_square(&img, 50, 16711680, square.x_pos, square.y_pos);
-	mlx_put_image_to_window(vars.mlx, vars.win, img.img, 0, 0);
+	create_square(&img, 50, RED, square.x_pos, square.y_pos);
 	mlx_key_hook(vars.win, move_square, &docs);
 	mlx_loop_hook(vars.mlx, render_next_frame, &docs);
 	mlx_loop(vars.mlx);
