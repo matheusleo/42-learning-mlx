@@ -6,7 +6,7 @@
 /*   By: mleonard <mleonard@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 20:58:30 by mleonard          #+#    #+#             */
-/*   Updated: 2022/09/26 09:29:14 by mleonard         ###   ########.fr       */
+/*   Updated: 2022/09/26 09:30:34 by mleonard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,18 @@ int	key_hook(int keycode, t_vars vars)
 	printf("Hello from key_hook function!\n");
 }
 
+int	mouse_hook(int keycode, t_vars *vars)
+{
+	printf("Hello from mouse_hook function\n");
+}
+
+int	mouse_move_hook(int x, int y, t_vars *vars)
+{
+	printf("Hello from mouse_move_hook function\n");
+	printf("pos_x %d\n", x);
+	printf("pos_y %d\n", y);
+}
+
 int	main(void)
 {
 	t_vars	vars;
@@ -192,5 +204,7 @@ int	main(void)
 		mlx_hook(vars.win, 2, 1L<<1, key_press, &vars);
 	*/
 	mlx_key_hook(vars.win, key_hook, &vars);
+	mlx_mouse_hook(vars.win, mouse_hook, &vars);
+	mlx_hook(vars.win, 6, 1L<<6, mouse_move_hook, &vars);
 	mlx_loop(vars.mlx);
 }
