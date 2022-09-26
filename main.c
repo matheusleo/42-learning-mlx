@@ -6,7 +6,7 @@
 /*   By: mleonard <mleonard@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 20:58:30 by mleonard          #+#    #+#             */
-/*   Updated: 2022/09/24 18:08:57 by mleonard         ###   ########.fr       */
+/*   Updated: 2022/09/26 09:29:14 by mleonard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef struct s_vars
 }			t_vars;
 
 
+// GETTING STARTED
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	int		offset;
@@ -110,6 +111,7 @@ void	create_circle_version_2(t_data *img, int radius, int color)
 	}
 }
 
+// EVENTS
 int	close_win(t_vars *vars)
 {
 	mlx_clear_window(vars->mlx, vars->win);
@@ -150,6 +152,12 @@ int	key_press(int keycode, t_vars *vars)
 		close_win(vars);
 }
 
+// HOOKS
+int	key_hook(int keycode, t_vars vars)
+{
+	printf("Hello from key_hook function!\n");
+}
+
 int	main(void)
 {
 	t_vars	vars;
@@ -171,15 +179,18 @@ int	main(void)
 	create_square(&img, 50, 16776960, 100 + 25, 150 + 25);
 	mlx_put_image_to_window(vars.mlx, vars.win, img.img, 0, 0);
 	// mlx_hooks
-	// log "Hello!" on when mouse enters the screen
-	mlx_hook(vars.win, 7, 1L<<4, mouse_entered, &vars);
-	// log "Bye!" on when mouse leaves the screen
-	mlx_hook(vars.win, 8, 1L<<5, mouse_left, &vars);
-	// log "Moving!" when the mouse is moving
-	mlx_hook(vars.win, 6, 1L<<6, mouse_moved, &vars);
-	// stop program on "X" click
-	mlx_hook(vars.win, 17, 1L<<0, cross_click, &vars);
-	// listen to keypress events
-	mlx_hook(vars.win, 2, 1L<<1, key_press, &vars);
+	/*
+		// log "Hello!" on when mouse enters the screen
+		mlx_hook(vars.win, 7, 1L<<4, mouse_entered, &vars);
+		// log "Bye!" on when mouse leaves the screen
+		mlx_hook(vars.win, 8, 1L<<5, mouse_left, &vars);
+		// log "Moving!" when the mouse is moving
+		mlx_hook(vars.win, 6, 1L<<6, mouse_moved, &vars);
+		// stop program on "X" click
+		mlx_hook(vars.win, 17, 1L<<0, cross_click, &vars);
+		// listen to keypress events
+		mlx_hook(vars.win, 2, 1L<<1, key_press, &vars);
+	*/
+	mlx_key_hook(vars.win, key_hook, &vars);
 	mlx_loop(vars.mlx);
 }
